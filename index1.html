@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LFC - Ligue Fight Championship | Administration & Profils Avancés</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&family=Russo+One&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <style>
+        :root {
+            --gold-primary: #FFD700;
+            --gold-dark: #B8860B;
+            --gold-light: #FFE55C;
+            --black-deep: #0a0a0a;
+            --black-card: #141414;
+            --danger-red: #ff3333;
+            --success-green: #00ff88;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--black-deep);
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        .font-russo { font-family: 'Russo One', sans-serif; }
+        .font-bebas { font-family: 'Bebas Neue', sans-serif; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #FFD700, #FFA500); border-radius: 4px; }
+        
+        /* Glass Effects */
+        .glass {
+            background: rgba(20, 20, 20, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+        
+        .glass-strong {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .glass-admin {
+            background: rgba(139, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+        
+        /* Gold Gradient */
+        .text-gold-gradient {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FFD700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Neon Effects */
+        .neon-gold { box-shadow: 0 0 20px rgba(255, 215, 0, 0.3), 0 0 40px rgba(255, 215, 0, 0.1); }
+        .neon-red { box-shadow: 0 0 20px rgba(255, 0, 0, 0.3), 0 0 40px rgba(255, 0, 0, 0.1); }
+        .neon-blue { box-shadow: 0 0 20px rgba(0, 150, 255, 0.3), 0 0 40px rgba(0, 150, 255, 0.1); }
+        
+        /* 3D Card */
+        .card-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .card-3d:hover { transform: rotateY(5deg) rotateX(5deg) translateZ(20px); }
+        
+        /* Animated Border */
+        .animated-border {
+            position: relative;
+            overflow: hidden;
+        }
+        .animated-border::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700, #FFA500);
+            background-size: 400% 400%;
+            z-index: -1;
+            animation: gradient-rotate 3s ease infinite;
+            border-radius: inherit;
+        }
+        @keyframes gradient-rotate {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Profile Name Styles */
+        .name-glow { text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor; }
+        .name-outline { -webkit-text-stroke: 1px currentColor; color: transparent; }
+        .name-gradient {
+            background: linear-gradient(45deg, #FFD700, #ff00ff, #00ffff, #FFD700);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-shift 3s ease infinite;
+        }
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Admin Panel Styles */
+        .admin-sidebar {
+            background: linear-gradient(180deg, #1a0000 0%, #0a0000 100%);
+            border-right: 1px solid rgba(255, 0, 0, 0.2);
+        }
+        
+        .admin-card {
+            background: linear-gradient(145deg, #1a1a1a 0%, #0f0f0f 100%);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+        }
+        
+        .stat-card-danger {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.1) 0%, rgba(139, 0, 0, 0.2) 100%);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+        
+        /* User Status */
+        .status-online { background: #00ff88; box-shadow: 0 0 10px #00ff88; }
+        .status-offline { background: #666; }
+        .status-banned { background: #ff3333; box-shadow: 0 0 10px #ff3333; }
+        
+        /* Media Grid */
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        /* Banner Upload */
+        .banner-preview {
+            height: 200px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+            border: 2px dashed rgba(255, 215, 0, 0.3);
+            transition: all 0.3s;
+        }
+        .banner-preview:hover {
+            border-color: #FFD700;
+            background: rgba(255, 215, 0, 0.05);
+        }
+        
+        /* Verification Badge */
+        .verified-badge {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: black;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 1rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        /* Captcha Container */
+        .cf-turnstile {
+            margin: 1rem 0;
+        }
+        
+        /* Particle Canvas */
+        #particles-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* Modal */
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Toast Notification */
+        .toast {
+            animation: slideInRight 0.3s ease-out;
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Loading Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.5rem 1rem;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover::after {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen relative">
+
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- Auth Modal (Login/Register) -->
+    <div id="auth-modal" class="fixed inset-0 z-[100] flex items-center justify-center modal-backdrop">
+        <div class="glass-strong rounded-3xl p-8 w-full max-w-md mx-4 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-500 via-orange-500 to-yellow-500"></div>
+            
+            <div class="text-center mb-8">
+                <img src="/mnt/kimi/upload/1000223269.png" alt="LFC" class="w-24 h-24 mx-auto mb-4 rounded-2xl object-cover neon-gold">
+                <h2 class="font-cinzel font-bold text-3xl text-gold-gradient">LFC CHAMPIONSHIP</h2>
+                <p class="text-gray-400 text-sm mt-2">Rejoignez l'élite des combattants</p>
+            </div>
+
+            <div id="auth-tabs" class="flex mb-6 bg-black/40 rounded-xl p-1">
+                <button onclick="switchAuthTab('login')" id="tab-login" class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-yellow-500 text-black">Connexion</button>
+                <button onclick="switchAuthTab('register')" id="tab-register" class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all text-gray-400 hover:text-white">Inscription</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1 uppercase">Email</label>
+                    <input type="email" id="login-email" required class="w-full bg-black/40 border border-yellow-500/30 rounded-xl px-4 py-3 text-white focus:border-yellow-500 focus:outline-none transition-colors" placeholder="votre@email.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1 uppercase">Mot de passe</label>
+                    <input type="password" id="login-password" required class="w-full bg-black/40 border border-yellow-500/30 rounded-xl px-4 py-3 text-white focus:border-yellow-500 focus:outline-none transition-colors" placeholder="••••••••">
+                </div>
+                <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-theme="dark"></div>
+                <button type="submit" class="w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-black font-bold py-3 rounded-xl hover:shadow-lg hover:shadow-yellow-500/30 transition-all transform hover:scale-[1.02]">
+                    SE CONNECTER
+                </button>
+                <p class="text-center text-sm text-gray-500">
+                    <a href="#" onclick="showForgotPassword()" class="text-yellow-500 hover:underline">Mot de passe oublié ?</a>
+                </p>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1 uppercase">Prénom</label>
+                        <input type="text" id="reg-firstname" required class="w-full bg-black/40 border border-yellow-500/30 rounded-xl px-3 py-2 text-white text-sm focus:border-yellow-500 focus:outline-none" placeholder="John">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1 uppercase">Nom</label>
+                        <input type="text" id="reg-lastname" required class="w-full bg-black/40 border border-yellow-500/30 rounded-xl px-3 py-2 text-white text-sm focus:border-yellow-500 focus:outline-none" placeholder="Doe">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1 uppercase">Pseudo</label>
+                    <input type="text" id="reg-username" required maxlength="20" class="w-full bg-black/40 border border-yellow-500/30 rounded-xl px-4 py-3 text-white focus:border-yellow-500 focus:outline-none" placeholder="FighterPro99">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1 uppercase">Email</label>
+                    <input type="email" id="reg-email" required class="w-full bg-black/40 border border-yellow-500/30 rounded-xl px-4 py-3 text-white focus:border-yellow-500 focus:outline-none" placeholder="votre@email.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1 uppercase">Mot de passe</label>
+                    <input type="password" id="reg-password" required minlength="8" class="w-full bg-black/40 border border-yellow-500/30 rounded-xl px-4 py-3 text-white focus:border-yellow-500 focus:outline-none" placeholder="8 caractères minimum">
+                </div>
+                <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-theme="dark"></div>
+                <button type="submit" class="w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-black font-bold py-3 rounded-xl hover:shadow-lg hover:shadow-yellow-500/30 transition-all transform hover:scale-[1.02]">
+                    CRÉER MON COMPTE
+                </button>
+            </form>
+
+            <!-- Verification Pending -->
+            <div id="verification-pending" class="hidden text-center py-8">
+                <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                    <i data-lucide="mail" class="w-10 h-10 text-yellow-500"></i>
+                </div>
+                <h3 class="font-bold text-xl text-white mb-2">Vérifiez votre email</h3>
+                <p class="text-gray-400 text-sm mb-4">Un lien d'activation a été envoyé à <span id="pending-email" class="text-yellow-500"></span></p>
+                <button onclick="resendVerification()" class="text-sm text-yellow-500 hover:underline">Renvoyer l'email</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App (Hidden until auth) -->
+    <div id="main-app" class="hidden">
+        
+        <!-- Navigation -->
+        <nav class="fixed top-0 w-full z-50 glass-strong border-b border-yellow-500/20">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex items-center justify-between h-20">
+                    <div class="flex items-center gap-4 cursor-pointer" onclick="showSection('home')">
+                        <img src="/mnt/kimi/upload/1000223269.png" alt="LFC" class="w-12 h-12 rounded-lg object-cover neon-gold">
+                        <div class="hidden sm:block">
+                            <h1 class="font-cinzel font-bold text-xl text-gold-gradient">LIGUE FIGHT</h1>
+                            <p class="text-xs text-gray-400 tracking-widest">CHAMPIONSHIP</p>
+                        </div>
+                    </div>
+
+                    <div class="hidden md:flex items-center gap-6">
+                        <button onclick="showSection('home')" class="nav-item active text-sm font-semibold flex items-center gap-2" data-section="home">
+                            <i data-lucide="home" class="w-4 h-4"></i> ACCUEIL
+                        </button>
+                        <button onclick="showSection('fight')" class="nav-item text-gray-300 hover:text-yellow-400 text-sm font-semibold flex items-center gap-2" data-section="fight">
+                            <i data-lucide="swords" class="w-4 h-4"></i> COMBATTRE
+                        </button>
+                        <button onclick="showSection('ranking')" class="nav-item text-gray-300 hover:text-yellow-400 text-sm font-semibold flex items-center gap-2" data-section="ranking">
+                            <i data-lucide="trophy" class="w-4 h-4"></i> CLASSEMENT
+                        </button>
+                        <button onclick="showSection('media')" class="nav-item text-gray-300 hover:text-yellow-400 text-sm font-semibold flex items-center gap-2" data-section="media">
+                            <i data-lucide="image" class="w-4 h-4"></i> MÉDIAS
+                        </button>
+                        <button onclick="showSection('chat')" class="nav-item text-gray-300 hover:text-yellow-400 text-sm font-semibold flex items-center gap-2" data-section="chat">
+                            <i data-lucide="message-square" class="w-4 h-4"></i> CHAT
+                        </button>
+                        <button onclick="showSection('profile')" class="nav-item text-gray-300 hover:text-yellow-400 text-sm font-semibold flex items-center gap-2" data-section="profile">
+                            <i data-lucide="user" class="w-4 h-4"></i> PROFIL
+                        </button>
+                        <button id="admin-btn" onclick="showSection('admin')" class="hidden nav-item text-red-400 hover:text-red-300 text-sm font-semibold flex items-center gap-2" data-section="admin">
+                            <i data-lucide="shield" class="w-4 h-4"></i> ADMIN
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <div id="user-mini-profile" class="hidden md:flex items-center gap-3 cursor-pointer" onclick="showSection('profile')">
+                            <div class="text-right">
+                                <p id="mini-username" class="text-sm font-bold text-white">User</p>
+                                <p id="mini-status" class="text-xs text-gray-400">En ligne</p>
+                            </div>
+                            <div id="mini-avatar" class="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center text-lg border-2 border-yellow-500/50">
+                                🥊
+                            </div>
+                        </div>
+                        <button onclick="logout()" class="text-gray-400 hover:text-red-400 transition-colors">
+                            <i data-lucide="log-out" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="toggleMobileMenu()" class="md:hidden text-yellow-400">
+                            <i data-lucide="menu" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden fixed inset-0 z-40 glass-strong pt-20">
+            <div class="p-4 space-y-2">
+                <button onclick="showSection('home')" class="w-full text-left py-3 px-4 rounded-xl hover:bg-yellow-500/10 text-white font-semibold flex items-center gap-3">
+                    <i data-lucide="home" class="w-5 h-5"></i> Accueil
+                </button>
+                <button onclick="showSection('fight')" class="w-full text-left py-3 px-4 rounded-xl hover:bg-yellow-500/10 text-gray-300 font-semibold flex items-center gap-3">
+                    <i data-lucide="swords" class="w-5 h-5"></i> Combattre
+                </button>
+                <button onclick="showSection('ranking')" class="w-full text-left py-3 px-4 rounded-xl hover:bg-yellow-500/10 text-gray-300 font-semibold flex items-center gap-3">
+                    <i data-lucide="trophy" class="w-5 h-5"></i> Classement
+                </button>
+                <button onclick="showSection('media')" class="w-full text-left py-3 px-4 rounded-xl hover:bg-yellow-500/10 text-gray-300 font-semibold flex items-center gap-3">
+                    <i data-lucide="image" class="w-5 h-5"></i> Médias
+                </button>
+                <button onclick="showSection('chat')" class="w-full text-left py-3 px-4 rounded-xl hover:bg-yellow-500/10 text-gray-300 font-semibold flex items-center gap-3">
+                    <i data-lucide="message-square" class="w-5 h-5"></i> Chat
+                </button>
+                <button onclick="showSection('profile')" class="w-full text-left py-3 px-4 rounded-xl hover:bg-yellow-500/10 text-gray-300 font-semibold flex items-center gap-3">
+                    <i data-lucide="user" class="w-5 h-5"></i> Mon Profil
+                </button>
+                <button id="mobile-admin-btn" onclick="showSection('admin')" class="hidden w-full text-left py-3 px-4 rounded-xl hover:bg-red-500/10 text-red-400 font-semibold flex items-center gap-3">
+                    <i data-lucide="shield" class="w-5 h-5"></i> Panel Admin
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="relative z-10 pt-20 pb-32">
+
+            <!-- HOME SECTION -->
+            <section id="home" class="section active min-h-screen px-4 py-12">
+                <div class="max-w-6xl mx-auto">
+                    <div class="text-center mb-12">
+                        <img src="/mnt/kimi/upload/1000223269.png" alt="LFC" class="w-32 h-32 mx-auto mb-6 rounded-2xl object-cover neon-gold animate-pulse">
+                        <h1 class="font-cinzel font-black text-5xl md:text-7xl text-gold-gradient mb-4">LIGUE FIGHT CHAMPIONSHIP</h1>
+                        <p class="text-gray-400 text-lg max-w-2xl mx-auto">L'élite des combattants de Strasbourg. Prouvez votre valeur et devenez une légende.</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-6 mb-12">
+                        <div class="glass rounded-2xl p-6 text-center card-3d">
+                            <div class="text-4xl font-bold text-gold-gradient mb-2" id="stat-fighters">0</div>
+                            <div class="text-sm text-gray-400 uppercase tracking-wider">Combattants</div>
+                        </div>
+                        <div class="glass rounded-2xl p-6 text-center card-3d">
+                            <div class="text-4xl font-bold text-gold-gradient mb-2" id="stat-fights">0</div>
+                            <div class="text-sm text-gray-400 uppercase tracking-wider">Combats</div>
+                        </div>
+                        <div class="glass rounded-2xl p-6 text-center card-3d">
+                            <div class="text-4xl font-bold text-gold-gradient mb-2" id="stat-online">0</div>
+                            <div class="text-sm text-gray-400 uppercase tracking-wider">En ligne</div>
+                        </div>
+                    </div>
+
+                    <!-- Featured Fighters -->
+                    <h3 class="font-cinzel font-bold text-2xl text-white mb-6 text-center">Combattants en Vedette</h3>
+                    <div id="featured-fighters" class="grid md:grid-cols-3 gap-6">
+                        <!-- Dynamically filled -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- FIGHT SECTION -->
+            <section id="fight" class="section hidden min-h-screen px-4 py-12">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="font-cinzel font-bold text-4xl text-center text-gold-gradient mb-8">ENTRER DANS L'ARÈNE</h2>
+                    
+                    <div class="glass-strong rounded-3xl p-8">
+                        <form onsubmit="registerFight(event)" class="space-y-6">
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-400 mb-2">Discipline</label>
+                                    <select id="fight-discipline" class="w-full bg-black/40 border border-yellow-500/30 rounded-xl px-4 py-3 text-white">
+                                        <option value="mma">MMA</option>
+                                        <option value="jjb">JJB</option>
+                                        <option value="lutte">Lutte</option>
+                                        <option value="boxe">Boxe</option>
+                                        <option value="muaythai">Muay Thai</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-400 mb-2">Niveau</label>
+                                    <select id="fight-level" class="w-full bg-black/40 border border-yellow-500/30 rounded-xl px-4 py-3 text-white">
+                                        <option value="debutant">Débutant</option>
+                                        <option value="amateur">Amateur</option>
+                                        <option value="semi-pro">Semi-Pro</option>
+                                        <option value="pro">Pro</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-400 mb-2">Poids (kg)</label>
+                                <input type="number" id="fight-weight" required class="w-full bg-black/40 border border-yellow-500/30 rounded-xl px-4 py-3 text-white" placeholder="70">
+                            </div>
+
+                            <button type="submit" class="w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-black font-bold py-4 rounded-xl text-lg hover:shadow-lg hover:shadow-yellow-500/30 transition-all transform hover:scale-[1.02]">
+                                S'INSCRIRE AU COMBAT
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RANKING SECTION -->
+            <section id="ranking" class="section hidden min-h-screen px-4 py-12">
+                <div class="max-w-5xl mx-auto">
+                    <h2 class="font-cinzel font-bold text-4xl text-center text-gold-gradient mb-8">CLASSEMENT OFFICIEL</h2>
+                    
+                    <div class="flex justify-center gap-4 mb-8 flex-wrap">
+                        <button onclick="filterRanking('all')" class="px-6 py-2 rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 text-sm font-semibold">Tous</button>
+                        <button onclick="filterRanking('mma')" class="px-6 py-2 rounded-full bg-black/40 text-gray-400 border border-gray-700 text-sm font-semibold hover:border-yellow-500/30">MMA</button>
+                        <button onclick="filterRanking('jjb')" class="px-6 py-2 rounded-full bg-black/40 text-gray-400 border border-gray-700 text-sm font-semibold hover:border-yellow-500/30">JJB</button>
+                    </div>
+
+                    <div id="ranking-list" class="space-y-4">
+                        <!-- Dynamically filled -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- MEDIA SECTION -->
+            <section id="media" class="section hidden min-h-screen px-4 py-12">
+                <div class="max-w-6xl mx-auto">
+                    <h2 class="font-cinzel font-bold text-4xl text-center text-gold-gradient mb-8">GALERIE MÉDIAS</h2>
+                    
+                    <!-- Admin Upload (visible only for admin) -->
+                    <div id="admin-upload" class="hidden mb-8 glass-strong rounded-2xl p-6 border-2 border-dashed border-yellow-500/30">
+                        <h3 class="font-bold text-yellow-400 mb-4 flex items-center gap-2">
+                            <i data-lucide="upload" class="w-5 h-5"></i> Upload Admin
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-2">Titre</label>
+                                <input type="text" id="media-title" class="w-full bg-black/40 border border-yellow-500/30 rounded-xl px-4 py-2 text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-2">Type</label>
+                                <select id="media-type" class="w-full bg-black/40 border border-yellow-500/30 rounded-xl px-4 py-2 text-white">
+                                    <option value="image">Image</option>
+                                    <option value="video">Vidéo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <input type="file" id="media-file" accept="image/*,video/*" class="hidden" onchange="previewMedia(this)">
+                            <button onclick="document.getElementById('media-file').click()" class="w-full py-8 border-2 border-dashed border-yellow-500/30 rounded-xl text-gray-400 hover:border-yellow-500 hover:text-yellow-400 transition-all">
+                                <i data-lucide="plus" class="w-8 h-8 mx-auto mb-2"></i>
+                                Cliquez pour sélectionner un fichier
+                            </button>
+                        </div>
+                        <div id="media-preview" class="mt-4 hidden">
+                            <img id="preview-img" class="max-h-48 rounded-xl mx-auto">
+                            <video id="preview-video" class="max-h-48 rounded-xl mx-auto hidden" controls></video>
+                        </div>
+                        <button onclick="uploadMedia()" class="mt-4 w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-black font-bold py-3 rounded-xl">
+                            PUBLIER
+                        </button>
+                    </div>
+
+                    <!-- Media Grid -->
+                    <div id="media-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <!-- Dynamically filled -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- CHAT SECTION -->
+            <section id="chat" class="section hidden min-h-screen px-4 py-12">
+                <div class="max-w-4xl mx-auto h-[calc(100vh-200px)]">
+                    <div class="glass-strong rounded-3xl h-full flex flex-col">
+                        <div class="p-4 border-b border-yellow-500/20 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                                <h3 class="font-cinzel font-bold text-xl">CHAT PUBLIC</h3>
+                                <span class="text-xs text-gray-400" id="chat-online-count">24 en ligne</span>
+                            </div>
+                        </div>
+                        
+                        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3">
+                            <!-- Messages -->
+                        </div>
+
+                        <div class="p-4 border-t border-yellow-500/20">
+                            <div class="flex gap-2">
+                                <input type="text" id="chat-input" maxlength="200" class="flex-1 bg-black/40 border border-yellow-500/30 rounded-xl px-4 py-2 text-white text-sm" placeholder="Votre message..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+                                <button onclick="sendChatMessage()" class="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-xl text-black font-bold">
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PROFILE SECTION -->
+            <section id="profile" class="section hidden min-h-screen px-4 py-12">
+                <div class="max-w-4xl mx-auto">
+                    <!-- Profile Header with Banner -->
+                    <div class="relative mb-8 rounded-3xl overflow-hidden">
+                        <div id="profile-banner" class="h-48 bg-gradient-to-r from-yellow-600/20 to-orange-600/20 relative">
+                            <img id="banner-img" class="w-full h-full object-cover" style="display: none;">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                            <button onclick="changeBanner()" class="absolute top-4 right-4 glass px-4 py-2 rounded-full text-sm font-semibold hover:bg-yellow-500/20 transition-colors">
+                                <i data-lucide="image" class="w-4 h-4 inline mr-2"></i>Changer bannière
+                            </button>
+                            <input type="file" id="banner-input" class="hidden" accept="image/*" onchange="handleBannerChange(this)">
+                        </div>
+                        
+                        <div class="absolute -bottom-16 left-8 flex items-end gap-6">
+                            <div class="relative">
+                                <div id="profile-avatar-display" class="w-32 h-32 rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center text-5xl border-4 border-black shadow-2xl">
+                                    🥊
+                                </div>
+                                <button onclick="changeAvatar()" class="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-yellow-500 text-black flex items-center justify-center hover:scale-110 transition-transform">
+                                    <i data-lucide="camera" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                            <div class="mb-4">
+                                <h2 id="profile-name-display" class="font-cinzel font-bold text-3xl text-white name-glow">Fighter99</h2>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span id="verified-badge" class="verified-badge hidden">
+                                        <i data-lucide="check-circle" class="w-3 h-3"></i> Vérifié
+                                    </span>
+                                    <span id="admin-badge" class="hidden px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-xs font-bold border border-red-500/30">ADMIN</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-20 grid md:grid-cols-3 gap-6">
+                        <!-- Profile Settings -->
+                        <div class="md:col-span-2 space-y-6">
+                            <div class="glass-strong rounded-2xl p-6">
+                                <h3 class="font-bold text-xl text-gold-gradient mb-4 flex items-center gap-2">
+                                    <i data-lucide="palette" class="w-5 h-5"></i> Personnalisation
+                                </h3>
+                                
+                                <!-- Name Style -->
+                                <div class="mb-6">
+                                    <label class="block text-sm text-gray-400 mb-2">Style du pseudo</label>
+                                    <div class="grid grid-cols-4 gap-2">
+                                        <button onclick="setNameStyle('normal')" class="name-style-btn p-3 rounded-xl bg-black/40 border-2 border-yellow-500 text-white text-center text-sm font-bold" data-style="normal">Normal</button>
+                                        <button onclick="setNameStyle('glow')" class="name-style-btn p-3 rounded-xl bg-black/40 border border-gray-700 text-gray-400 text-center text-sm font-bold name-glow" data-style="glow" style="color: #FFD700;">Glow</button>
+                                        <button onclick="setNameStyle('outline')" class="name-style-btn p-3 rounded-xl bg-black/40 border border-gray-700 text-gray-400 text-center text-sm font-bold name-outline" data-style="outline" style="color: #FFD700;">Outline</button>
+                                        <button onclick="setNameStyle('gradient')" class="name-style-btn p-3 rounded-xl bg-black/40 border border-gray-700 text-gray-400 text-center text-sm font-bold name-gradient" data-style="gradient">Rainbow</button>
+                                    </div>
+                                </div>
+
+                                <!-- Name Color -->
+                                <div class="mb-6">
+                                    <label class="block text-sm text-gray-400 mb-2">Couleur du pseudo</label>
+                                    <div class="flex gap-3 flex-wrap">
+                                        <button onclick="setNameColor('#FFD700')" class="w-10 h-10 rounded-full bg-yellow-400 border-2 border-white shadow-lg hover:scale-110 transition-transform"></button>
+                                        <button onclick="setNameColor('#ff3333')" class="w-10 h-10 rounded-full bg-red-500 border-2 border-transparent hover:border-white transition-all"></button>
+                                        <button onclick="setNameColor('#00ff88')" class="w-10 h-10 rounded-full bg-green-400 border-2 border-transparent hover:border-white transition-all"></button>
+                                        <button onclick="setNameColor('#0096ff')" class="w-10 h-10 rounded-full bg-blue-500 border-2 border-transparent hover:border-white transition-all"></button>
+                                        <button onclick="setNameColor('#ff00ff')" class="w-10 h-10 rounded-full bg-purple-500 border-2 border-transparent hover:border-white transition-all"></button>
+                                        <button onclick="setNameColor('#00ffff')" class="w-10 h-10 rounded-full bg-cyan-400 border-2 border-transparent hover:border-white transition-all"></button>
+                                        <button onclick="setNameColor('#ffffff')" class="w-10 h-10 rounded-full bg-white border-2 border-transparent hover:border-yellow-400 transition-all"></button>
+                                        <input type="color" id="custom-color" onchange="setNameColor(this.value)" class="w-10 h-10 rounded-full overflow-hidden cursor-pointer border-2 border-gray-600">
+                                    </div>
+                                </div>
+
+                                <!-- Font Selection -->
+                                <div class="mb-6">
+                                    <label class="block text-sm text-gray-400 mb-2">Police d'écriture</label>
+                                    <select id="font-select" onchange="setFont(this.value)" class="w-full bg-black/40 border border-yellow-500/30 rounded-xl px-4 py-3 text-white">
+                                        <option value="font-cinzel">Cinzel (Classique)</option>
+                                        <option value="font-orbitron">Orbitron (Futuriste)</option>
+                                        <option value="font-russo">Russo One (Sport)</option>
+                                        <option value="font-bebas">Bebas Neue (Impact)</option>
+                                        <option value="font-inter">Inter (Moderne)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Avatar Selection -->
+                                <div>
+                                    <label class="block text-sm text-gray-400 mb-2">Avatar</label>
+                                    <div class="grid grid-cols-6 gap-2">
+                                        <button onclick="setAvatar('🥊')" class="avatar-select p-3 rounded-xl bg-black/40 border-2 border-yellow-500 text-2xl hover:scale-110 transition-transform" data-avatar="🥊">🥊</button>
+                                        <button onclick="setAvatar('🦁')" class="avatar-select p-3 rounded-xl bg-black/40 border border-gray-700 text-2xl hover:scale-110 transition-transform" data-avatar="🦁">🦁</button>
+                                        <button onclick="setAvatar('🐺')" class="avatar-select p-3 rounded-xl bg-black/40 border border-gray-700 text-2xl hover:scale-110 transition-transform" data-avatar="🐺">🐺</button>
+                                        <button onclick="setAvatar('🦅')" class="avatar-select p-3 rounded-xl bg-black/40 border border-gray-700 text-2xl hover:scale-110 transition-transform" data-avatar="🦅">🦅</button>
+                                        <button onclick="setAvatar('🐍')" class="avatar-select p-3 rounded-xl bg-black/40 border border-gray-700 text-2xl hover:scale-110 transition-transform" data-avatar="🐍">🐍</button>
+                                        <button onclick="setAvatar('🦍')" class="avatar-select p-3 rounded-xl bg-black/40 border border-gray-700 text-2xl hover:scale-110 transition-transform" data-avatar="🦍">🦍</button>
+                                        <button onclick="setAvatar('🐯')" class="avatar-select p-3 rounded-xl bg-black/40 border border-gray-700 text-2xl hover:scale-110 transition-transform" data-avatar="🐯">🐯</button>
+                                        <button onclick="setAvatar('🦈')" class="avatar-select p-3 rounded-xl bg-black/40 border border-gray-700 text-2xl hover:scale-110 transition-transform" data-avatar="🦈">🦈</button>
+                                        <button onclick="setAvatar('🦂')" class="avatar-select p-3 rounded-xl bg-black/40 border border-gray-700 text-2xl hover:scale-110 transition-transform" data-avatar="🦂">🦂</button>
+                                        <button onclick="setAvatar('🐉')" class="avatar-select p-3 rounded-xl bg-black/40 border border-gray-700 text-2xl hover:scale-110 transition-transform" data-avatar="🐉">🐉</button>
+                                        <button onclick="setAvatar('⚡')" class="avatar-select p-3 rounded-xl bg-black/40 border border-gray-700 text-2xl hover:scale-110 transition-transform" data-avatar="⚡">⚡</button>
+                                        <button onclick="setAvatar('🔥')" class="avatar-select p-3 rounded-xl bg-black/40 border border-gray-700 text-2xl hover:scale-110 transition-transform" data-avatar="🔥">🔥</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Account Info -->
+                            <div class="glass-strong rounded-2xl p-6">
+                                <h3 class="font-bold text-xl text-gold-gradient mb-4 flex items-center gap-2">
+                                    <i data-lucide="settings" class="w-5 h-5"></i> Informations
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm text-gray-400 mb-1">Email</label>
+                                        <input type="email" id="profile-email" class="w-full bg-black/40 border border-yellow-500/30 rounded-xl px-4 py-2 text-white" readonly>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-400 mb-1">Membre depuis</label>
+                                        <input type="text" id="profile-joined" class="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-2 text-gray-400" readonly>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-400 mb-1">IP Address</label>
+                                        <input type="text" id="profile-ip" class="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-2 text-gray-500 text-sm font-mono" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stats Sidebar -->
+                        <div class="space-y-6">
+                            <div class="glass-strong rounded-2xl p-6 text-center">
+                                <div class="text-4xl font-bold text-gold-gradient mb-1" id="profile-wins">0</div>
+                                <div class="text-sm text-gray-400">Victoires</div>
+                            </div>
+                            <div class="glass-strong rounded-2xl p-6 text-center">
+                                <div class="text-4xl font-bold text-red-400 mb-1" id="profile-losses">0</div>
+                                <div class="text-sm text-gray-400">Défaites</div>
+                            </div>
+                            <div class="glass-strong rounded-2xl p-6 text-center">
+                                <div class="text-4xl font-bold text-blue-400 mb-1" id="profile-rank">#--</div>
+                                <div class="text-sm text-gray-400">Classement</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ADMIN SECTION -->
+            <section id="admin" class="section hidden min-h-screen">
+                <div class="flex h-screen pt-20">
+                    <!-- Admin Sidebar -->
+                    <div class="w-64 admin-sidebar hidden md:block overflow-y-auto">
+                        <div class="p-6">
+                            <h2 class="font-cinzel font-bold text-xl text-red-400 mb-6 flex items-center gap-2">
+                                <i data-lucide="shield" class="w-6 h-6"></i> ADMIN
+                            </h2>
+                            
+                            <nav class="space-y-2">
+                                <button onclick="showAdminTab('dashboard')" class="admin-nav-item w-full text-left px-4 py-3 rounded-xl bg-red-500/20 text-red-400 font-semibold flex items-center gap-3" data-tab="dashboard">
+                                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+                                </button>
+                                <button onclick="showAdminTab('users')" class="admin-nav-item w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/10 text-gray-400 hover:text-red-400 font-semibold flex items-center gap-3 transition-colors" data-tab="users">
+                                    <i data-lucide="users" class="w-5 h-5"></i> Utilisateurs
+                                </button>
+                                <button onclick="showAdminTab('banned')" class="admin-nav-item w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/10 text-gray-400 hover:text-red-400 font-semibold flex items-center gap-3 transition-colors" data-tab="banned">
+                                    <i data-lucide="ban" class="w-5 h-5"></i> Bannis
+                                </button>
+                                <button onclick="showAdminTab('media')" class="admin-nav-item w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/10 text-gray-400 hover:text-red-400 font-semibold flex items-center gap-3 transition-colors" data-tab="media">
+                                    <i data-lucide="image" class="w-5 h-5"></i> Médias
+                                </button>
+                                <button onclick="showAdminTab('logs')" class="admin-nav-item w-full text-left px-4 py-3 rounded-xl hover:bg-red-500/10 text-gray-400 hover:text-red-400 font-semibold flex items-center gap-3 transition-colors" data-tab="logs">
+                                    <i data-lucide="file-text" class="w-5 h-5"></i> Logs
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <!-- Admin Content -->
+                    <div class="flex-1 overflow-y-auto p-8">
+                        
+                        <!-- Dashboard -->
+                        <div id="admin-dashboard" class="admin-tab">
+                            <h3 class="font-cinzel font-bold text-2xl text-white mb-6">Tableau de bord</h3>
+                            
+                            <div class="grid md:grid-cols-4 gap-6 mb-8">
+                                <div class="stat-card-danger rounded-2xl p-6">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-gray-400 text-sm">Total Users</span>
+                                        <i data-lucide="users" class="w-5 h-5 text-red-400"></i>
+                                    </div>
+                                    <div class="text-3xl font-bold text-white" id="admin-total-users">0</div>
+                                </div>
+                                <div class="stat-card-danger rounded-2xl p-6">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-gray-400 text-sm">En ligne</span>
+                                        <i data-lucide="activity" class="w-5 h-5 text-green-400"></i>
+                                    </div>
+                                    <div class="text-3xl font-bold text-white" id="admin-online-users">0</div>
+                                </div>
+                                <div class="stat-card-danger rounded-2xl p-6">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-gray-400 text-sm">Bannis</span>
+                                        <i data-lucide="ban" class="w-5 h-5 text-red-500"></i>
+                                    </div>
+                                    <div class="text-3xl font-bold text-white" id="admin-banned-users">0</div>
+                                </div>
+                                <div class="stat-card-danger rounded-2xl p-6">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-gray-400 text-sm">En attente</span>
+                                        <i data-lucide="clock" class="w-5 h-5 text-yellow-400"></i>
+                                    </div>
+                                    <div class="text-3xl font-bold text-white" id="admin-pending-users">0</div>
+                                </div>
+                            </div>
+
+                            <div class="admin-card rounded-2xl p-6">
+                                <h4 class="font-bold text-lg text-white mb-4">Activité récente</h4>
+                                <div id="admin-activity-log" class="space-y-3 max-h-96 overflow-y-auto">
+                                    <!-- Logs -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Users Management -->
+                        <div id="admin-users" class="admin-tab hidden">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="font-cinzel font-bold text-2xl text-white">Gestion Utilisateurs</h3>
+                                <div class="flex gap-2">
+                                    <input type="text" id="user-search" placeholder="Rechercher..." class="bg-black/40 border border-red-500/30 rounded-xl px-4 py-2 text-white text-sm" onkeyup="searchUsers()">
+                                    <button onclick="refreshUsers()" class="px-4 py-2 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition-colors">
+                                        <i data-lucide="refresh" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="admin-card rounded-2xl overflow-hidden">
+                                <table class="w-full text-left">
+                                    <thead class="bg-red-500/10 border-b border-red-500/20">
+                                        <tr>
+                                            <th class="px-6 py-4 text-sm font-semibold text-gray-400">Utilisateur</th>
+                                            <th class="px-6 py-4 text-sm font-semibold text-gray-400">Email</th>
+                                            <th class="px-6 py-4 text-sm font-semibold text-gray-400">IP</th>
+                                            <th class="px-6 py-4 text-sm font-semibold text-gray-400">Statut</th>
+                                            <th class="px-6 py-4 text-sm font-semibold text-gray-400">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-users-table" class="divide-y divide-red-500/10">
+                                        <!-- Users -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Banned Users -->
+                        <div id="admin-banned" class="admin-tab hidden">
+                            <h3 class="font-cinzel font-bold text-2xl text-white mb-6">Utilisateurs Bannis</h3>
+                            <div id="banned-users-list" class="space-y-4">
+                                <!-- Banned users -->
+                            </div>
+                        </div>
+
+                        <!-- Media Management -->
+                        <div id="admin-media" class="admin-tab hidden">
+                            <h3 class="font-cinzel font-bold text-2xl text-white mb-6">Gestion des Médias</h3>
+                            <div id="admin-media-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <!-- Media items with delete buttons -->
+                            </div>
+                        </div>
+
+                        <!-- Logs -->
+                        <div id="admin-logs" class="admin-tab hidden">
+                            <h3 class="font-cinzel font-bold text-2xl text-white mb-6">Logs Système</h3>
+                            <div class="admin-card rounded-2xl p-4 font-mono text-sm max-h-[600px] overflow-y-auto" id="system-logs">
+                                <!-- Logs -->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Toast Container -->
+        <div id="toast-container" class="fixed bottom-4 right-4 z-[200] space-y-2"></div>
+    </div>
+
+    <script>
+        // Global State
+        let currentUser = null;
+        let users = JSON.parse(localStorage.getItem('lfc_users')) || [];
+        let media = JSON.parse(localStorage.getItem('lfc_media')) || [];
+        let chatMessages = JSON.parse(localStorage.getItem('lfc_chat')) || [];
+        let logs = JSON.parse(localStorage.getItem('lfc_logs')) || [];
+        let bannedIPs = JSON.parse(localStorage.getItem('lfc_banned_ips')) || [];
+
+        // Config
+        const ADMIN_EMAIL = 'admin@lfc.fr';
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initParticles();
+            checkAuth();
+            lucide.createIcons();
+            
+            // Generate fake IP for demo
+            if (!localStorage.getItem('lfc_device_ip')) {
+                localStorage.setItem('lfc_device_ip', generateIP());
+            }
+        });
+
+        // Auth Functions
+        function checkAuth() {
+            const session = localStorage.getItem('lfc_session');
+            if (session) {
+                currentUser = JSON.parse(session);
+                if (currentUser.banned) {
+                    showToast('Votre compte a été banni', 'error');
+                    logout();
+                    return;
+                }
+                showMainApp();
+            }
+        }
+
+        function switchAuthTab(tab) {
+            document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
+            document.getElementById('register-form').classList.toggle('hidden', tab !== 'register');
+            document.getElementById('tab-login').classList.toggle('bg-yellow-500', tab === 'login');
+            document.getElementById('tab-login').classList.toggle('text-black', tab === 'login');
+            document.getElementById('tab-login').classList.toggle('text-gray-400', tab !== 'login');
+            document.getElementById('tab-register').classList.toggle('bg-yellow-500', tab === 'register');
+            document.getElementById('tab-register').classList.toggle('text-black', tab === 'register');
+            document.getElementById('tab-register').classList.toggle('text-gray-400', tab !== 'register');
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            
+            const user = {
+                id: Date.now(),
+                firstName: document.getElementById('reg-firstname').value,
+                lastName: document.getElementById('reg-lastname').value,
+                username: document.getElementById('reg-username').value,
+                email: document.getElementById('reg-email').value,
+                password: document.getElementById('reg-password').value, // In real app, hash this!
+                avatar: '🥊',
+                banner: null,
+                nameStyle: 'normal',
+                nameColor: '#FFD700',
+                font: 'font-cinzel',
+                verified: false,
+                banned: false,
+                ip: localStorage.getItem('lfc_device_ip') || generateIP(),
+                createdAt: new Date().toISOString(),
+                lastLogin: new Date().toISOString(),
+                wins: 0,
+                losses: 0,
+                points: 100
+            };
+
+            // Check if email exists
+            if (users.find(u => u.email === user.email)) {
+                showToast('Cet email est déjà utilisé', 'error');
+                return;
+            }
+
+            // Check banned IP
+            if (bannedIPs.includes(user.ip)) {
+                showToast('Cette adresse IP est bannie', 'error');
+                return;
+            }
+
+            users.push(user);
+            localStorage.setItem('lfc_users', JSON.stringify(users));
+            
+            // Show verification pending
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('verification-pending').classList.remove('hidden');
+            document.getElementById('pending-email').textContent = user.email;
+            
+            addLog(`Nouvelle inscription: ${user.username} (${user.email})`);
+            
+            // Simulate verification for demo (auto-verify after 3 seconds)
+            setTimeout(() => {
+                user.verified = true;
+                localStorage.setItem('lfc_users', JSON.stringify(users));
+            }, 3000);
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (!user) {
+                showToast('Email ou mot de passe incorrect', 'error');
+                return;
+            }
+
+            if (user.banned) {
+                showToast('Votre compte a été banni', 'error');
+                return;
+            }
+
+            if (bannedIPs.includes(user.ip)) {
+                showToast('Cette adresse IP est bannie', 'error');
+                return;
+            }
+
+            // Check verification
+            if (!user.verified && email !== ADMIN_EMAIL) {
+                showToast('Veuillez vérifier votre email avant de vous connecter', 'warning');
+                return;
+            }
+
+            user.lastLogin = new Date().toISOString();
+            localStorage.setItem('lfc_users', JSON.stringify(users));
+            
+            currentUser = user;
+            localStorage.setItem('lfc_session', JSON.stringify(user));
+            
+            addLog(`Connexion: ${user.username}`);
+            showMainApp();
+        }
+
+        function showMainApp() {
+            document.getElementById('auth-modal').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            
+            // Check if admin
+            if (currentUser.email === ADMIN_EMAIL) {
+                document.getElementById('admin-btn').classList.remove('hidden');
+                document.getElementById('mobile-admin-btn').classList.remove('hidden');
+                document.getElementById('admin-upload').classList.remove('hidden');
+                document.getElementById('admin-badge').classList.remove('hidden');
+                currentUser.isAdmin = true;
+            }
+
+            // Update profile display
+            updateProfileDisplay();
+            updateStats();
+            loadMedia();
+            loadChat();
+            
+            showToast(`Bienvenue, ${currentUser.username}!`, 'success');
+        }
+
+        function logout() {
+            localStorage.removeItem('lfc_session');
+            currentUser = null;
+            location.reload();
+        }
+
+        // Profile Functions
+        function updateProfileDisplay() {
+            document.getElementById('mini-username').textContent = currentUser.username;
+            document.getElementById('mini-avatar').textContent = currentUser.avatar;
+            document.getElementById('profile-name-display').textContent = currentUser.username;
+            document.getElementById('profile-avatar-display').textContent = currentUser.avatar;
+            document.getElementById('profile-email').value = currentUser.email;
+            document.getElementById('profile-joined').value = new Date(currentUser.createdAt).toLocaleDateString('fr-FR');
+            document.getElementById('profile-ip').value = currentUser.ip;
+            document.getElementById('profile-wins').textContent = currentUser.wins || 0;
+            document.getElementById('profile-losses').textContent = currentUser.losses || 0;
+            
+            if (currentUser.verified) {
+                document.getElementById('verified-badge').classList.remove('hidden');
+            }
+
+            // Apply styles
+            const nameEl = document.getElementById('profile-name-display');
+            nameEl.className = `font-cinzel font-bold text-3xl ${currentUser.font || 'font-cinzel'}`;
+            nameEl.style.color = currentUser.nameColor || '#FFD700';
+            
+            if (currentUser.nameStyle === 'glow') {
+                nameEl.classList.add('name-glow');
+            } else if (currentUser.nameStyle === 'outline') {
+                nameEl.classList.add('name-outline');
+            } else if (currentUser.nameStyle === 'gradient') {
+                nameEl.classList.add('name-gradient');
+            }
+
+            if (currentUser.banner) {
+                document.getElementById('banner-img').src = currentUser.banner;
+                document.getElementById('banner-img').style.display = 'block';
+            }
+        }
+
+        function setNameStyle(style) {
+            currentUser.nameStyle = style;
+            saveUser();
+            updateProfileDisplay();
+            
+            document.querySelectorAll('.name-style-btn').forEach(btn => {
+                if (btn.dataset.style === style) {
+                    btn.classList.add('border-yellow-500', 'border-2');
+                    btn.classList.remove('border-gray-700');
+                } else {
+                    btn.classList.remove('border-yellow-500', 'border-2');
+                    btn.classList.add('border-gray-700');
+                }
+            });
+        }
+
+        function setNameColor(color) {
+            currentUser.nameColor = color;
+            saveUser();
+            updateProfileDisplay();
+        }
+
+        function setFont(font) {
+            currentUser.font = font;
+            saveUser();
+            updateProfileDisplay();
+        }
+
+        function setAvatar(avatar) {
+            currentUser.avatar = avatar;
+            saveUser();
+            updateProfileDisplay();
+            
+            document.querySelectorAll('.avatar-select').forEach(btn => {
+                if (btn.dataset.avatar === avatar) {
+                    btn.classList.add('border-yellow-500', 'border-2');
+                    btn.classList.remove('border-gray-700');
+                } else {
+                    btn.classList.remove('border-yellow-500', 'border-2');
+                    btn.classList.add('border-gray-700');
+                }
+            });
+        }
+
+        function changeBanner() {
+            document.getElementById('banner-input').click();
+        }
+
+        function handleBannerChange(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    currentUser.banner = e.target.result;
+                    saveUser();
+                    updateProfileDisplay();
+                    showToast('Bannière mise à jour', 'success');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function changeAvatar() {
+            // Could open avatar upload modal
+            showToast('Sélectionnez un avatar dans la grille ci-dessous', 'info');
+        }
+
+        function saveUser() {
+            const idx = users.findIndex(u => u.id === currentUser.id);
+            if (idx !== -1) {
+                users[idx] = currentUser;
+                localStorage.setItem('lfc_users', JSON.stringify(users));
+                localStorage.setItem('lfc_session', JSON.stringify(currentUser));
+            }
+        }
+
+        // Admin Functions
+        function showAdminTab(tab) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('hidden'));
+            document.getElementById(`admin-${tab}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.admin-nav-item').forEach(item => {
+                if (item.dataset.tab === tab) {
+                    item.classList.add('bg-red-500/20', 'text-red-400');
+                    item.classList.remove('text-gray-400');
+                } else {
+                    item.classList.remove('bg-red-500/20', 'text-red-400');
+                    item.classList.add('text-gray-400');
+                }
+            });
+
+            if (tab === 'users') refreshUsers();
+            if (tab === 'banned') refreshBanned();
+            if (tab === 'media') refreshAdminMedia();
+            if (tab === 'logs') refreshLogs();
+        }
+
+        function refreshUsers() {
+            const tbody = document.getElementById('admin-users-table');
+            tbody.innerHTML = users.map(user => `
+                <tr class="hover:bg-red-500/5 transition-colors">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center text-lg">
+                                ${user.avatar}
+                            </div>
+                            <div>
+                                <div class="font-semibold text-white ${user.font || ''}" style="color: ${user.nameColor || '#fff'}">${user.username}</div>
+                                <div class="text-xs text-gray-500">${user.firstName} ${user.lastName}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-gray-400 text-sm">${user.email}</td>
+                    <td class="px-6 py-4 text-gray-500 text-sm font-mono">${user.ip}</td>
+                    <td class="px-6 py-4">
+                        ${user.banned ? 
+                            '<span class="px-2 py-1 rounded-full bg-red-500/20 text-red-400 text-xs font-bold">BANNI</span>' :
+                            user.verified ?
+                            '<span class="px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-bold">ACTIF</span>' :
+                            '<span class="px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-bold">EN ATTENTE</span>'
+                        }
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex gap-2">
+                            <button onclick="viewUserDetails(${user.id})" class="p-2 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors tooltip" data-tooltip="Voir détails">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                            </button>
+                            ${!user.banned ? `
+                                <button onclick="banUser(${user.id})" class="p-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors tooltip" data-tooltip="Bannir">
+                                    <i data-lucide="ban" class="w-4 h-4"></i>
+                                </button>
+                            ` : `
+                                <button onclick="unbanUser(${user.id})" class="p-2 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors tooltip" data-tooltip="Débannir">
+                                    <i data-lucide="check" class="w-4 h-4"></i>
+                                </button>
+                            `}
+                            <button onclick="deleteUser(${user.id})" class="p-2 rounded-lg bg-gray-700 text-gray-400 hover:bg-gray-600 transition-colors tooltip" data-tooltip="Supprimer">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            
+            lucide.createIcons();
+            
+            // Update stats
+            document.getElementById('admin-total-users').textContent = users.length;
+            document.getElementById('admin-banned-users').textContent = users.filter(u => u.banned).length;
+            document.getElementById('admin-pending-users').textContent = users.filter(u => !u.verified).length;
+            document.getElementById('admin-online-users').textContent = Math.floor(Math.random() * 20) + 5;
+        }
+
+        function banUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                user.banned = true;
+                bannedIPs.push(user.ip);
+                localStorage.setItem('lfc_users', JSON.stringify(users));
+                localStorage.setItem('lfc_banned_ips', JSON.stringify([...new Set(bannedIPs)]));
+                addLog(`Bannissement: ${user.username} (${user.ip})`);
+                refreshUsers();
+                showToast(`${user.username} a été banni`, 'success');
+            }
+        }
+
+        function unbanUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                user.banned = false;
+                bannedIPs = bannedIPs.filter(ip => ip !== user.ip);
+                localStorage.setItem('lfc_users', JSON.stringify(users));
+                localStorage.setItem('lfc_banned_ips', JSON.stringify(bannedIPs));
+                addLog(`Débannissement: ${user.username}`);
+                refreshUsers();
+                showToast(`${user.username} a été débanni`, 'success');
+            }
+        }
+
+        function deleteUser(userId) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) return;
+            
+            const user = users.find(u => u.id === userId);
+            users = users.filter(u => u.id !== userId);
+            localStorage.setItem('lfc_users', JSON.stringify(users));
+            addLog(`Suppression: ${user.username}`);
+            refreshUsers();
+            showToast('Utilisateur supprimé', 'success');
+        }
+
+        function viewUserDetails(userId) {
+            const user = users.find(u => u.id === userId);
+            alert(`Détails de ${user.username}:\n\nEmail: ${user.email}\nIP: ${user.ip}\nInscrit le: ${new Date(user.createdAt).toLocaleDateString()}\nDernière connexion: ${new Date(user.lastLogin).toLocaleDateString()}\nVictoires: ${user.wins}\nDéfaites: ${user.losses}`);
+        }
+
+        function refreshBanned() {
+            const banned = users.filter(u => u.banned);
+            document.getElementById('banned-users-list').innerHTML = banned.map(user => `
+                <div class="admin-card rounded-xl p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center text-2xl border border-red-500/30">
+                            ${user.avatar}
+                        </div>
+                        <div>
+                            <div class="font-bold text-white">${user.username}</div>
+                            <div class="text-sm text-gray-500">${user.email} • ${user.ip}</div>
+                        </div>
+                    </div>
+                    <button onclick="unbanUser(${user.id})" class="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-colors font-semibold">
+                        Débannir
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function searchUsers() {
+            const query = document.getElementById('user-search').value.toLowerCase();
+            const rows = document.querySelectorAll('#admin-users-table tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        // Media Functions
+        function loadMedia() {
+            const grid = document.getElementById('media-grid');
+            grid.innerHTML = media.map((item, idx) => `
+                <div class="relative group rounded-xl overflow-hidden aspect-square cursor-pointer" onclick="viewMedia(${idx})">
+                    ${item.type === 'video' ? `
+                        <video src="${item.url}" class="w-full h-full object-cover"></video>
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/50">
+                            <i data-lucide="play" class="w-12 h-12 text-white opacity-80"></i>
+                        </div>
+                    ` : `
+                        <img src="${item.url}" class="w-full h-full object-cover">
+                    `}
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div class="absolute bottom-2 left-2 right-2">
+                            <p class="text-white text-sm font-semibold truncate">${item.title}</p>
+                            <p class="text-gray-400 text-xs">Par ${item.author}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function previewMedia(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('media-preview').classList.remove('hidden');
+                    if (file.type.startsWith('video/')) {
+                        document.getElementById('preview-video').src = e.target.result;
+                        document.getElementById('preview-video').classList.remove('hidden');
+                        document.getElementById('preview-img').classList.add('hidden');
+                    } else {
+                        document.getElementById('preview-img').src = e.target.result;
+                        document.getElementById('preview-img').classList.remove('hidden');
+                        document.getElementById('preview-video').classList.add('hidden');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function uploadMedia() {
+            const fileInput = document.getElementById('media-file');
+            const title = document.getElementById('media-title').value;
+            const type = document.getElementById('media-type').value;
+            
+            if (!fileInput.files[0] || !title) {
+                showToast('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                media.unshift({
+                    id: Date.now(),
+                    title: title,
+                    type: type,
+                    url: e.target.result,
+                    author: currentUser.username,
+                    date: new Date().toISOString()
+                });
+                localStorage.setItem('lfc_media', JSON.stringify(media));
+                loadMedia();
+                
+                // Reset form
+                document.getElementById('media-title').value = '';
+                document.getElementById('media-preview').classList.add('hidden');
+                fileInput.value = '';
+                
+                showToast('Média publié avec succès', 'success');
+                addLog(`Upload média: ${title} par ${currentUser.username}`);
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        }
+
+        function refreshAdminMedia() {
+            const grid = document.getElementById('admin-media-grid');
+            grid.innerHTML = media.map((item, idx) => `
+                <div class="relative rounded-xl overflow-hidden aspect-square group">
+                    ${item.type === 'video' ? `
+                        <video src="${item.url}" class="w-full h-full object-cover"></video>
+                    ` : `
+                        <img src="${item.url}" class="w-full h-full object-cover">
+                    `}
+                    <button onclick="deleteMedia(${idx})" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                    <div class="absolute bottom-0 left-0 right-0 p-2 bg-black/80">
+                        <p class="text-white text-xs truncate">${item.title}</p>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function deleteMedia(idx) {
+            if (!confirm('Supprimer ce média ?')) return;
+            const item = media[idx];
+            media.splice(idx, 1);
+            localStorage.setItem('lfc_media', JSON.stringify(media));
+            refreshAdminMedia();
+            loadMedia();
+            addLog(`Suppression média: ${item.title}`);
+        }
+
+        function viewMedia(idx) {
+            // Could open lightbox
+            showToast('Visionneuse média - Fonctionnalité complète à venir', 'info');
+        }
+
+        // Chat Functions
+        function loadChat() {
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = chatMessages.map(msg => `
+                <div class="flex gap-3 ${msg.userId === currentUser?.id ? 'flex-row-reverse' : ''}">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center text-sm flex-shrink-0">
+                        ${msg.avatar}
+                    </div>
+                    <div class="max-w-[70%]">
+                        <div class="glass rounded-2xl ${msg.userId === currentUser?.id ? 'rounded-tr-none bg-yellow-500/10' : 'rounded-tl-none'} px-4 py-2">
+                            <div class="flex items-center gap-2 mb-1 ${msg.userId === currentUser?.id ? 'flex-row-reverse' : ''}">
+                                <span class="text-xs font-bold" style="color: ${msg.nameColor || '#FFD700'}">${msg.username}</span>
+                                <span class="text-xs text-gray-600">${new Date(msg.time).toLocaleTimeString()}</span>
+                            </div>
+                            <p class="text-sm text-gray-200">${escapeHtml(msg.text)}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const msg = {
+                id: Date.now(),
+                userId: currentUser.id,
+                username: currentUser.username,
+                avatar: currentUser.avatar,
+                nameColor: currentUser.nameColor,
+                text: text,
+                time: new Date().toISOString()
+            };
+
+            chatMessages.push(msg);
+            if (chatMessages.length > 100) chatMessages.shift();
+            localStorage.setItem('lfc_chat', JSON.stringify(chatMessages));
+            
+            loadChat();
+            input.value = '';
+        }
+
+        // Logs
+        function addLog(message) {
+            logs.unshift({
+                time: new Date().toISOString(),
+                message: message
+            });
+            if (logs.length > 200) logs.pop();
+            localStorage.setItem('lfc_logs', JSON.stringify(logs));
+        }
+
+        function refreshLogs() {
+            document.getElementById('system-logs').innerHTML = logs.map(log => `
+                <div class="mb-2 text-gray-400">
+                    <span class="text-gray-600">[${new Date(log.time).toLocaleString()}]</span> ${log.message}
+                </div>
+            `).join('');
+        }
+
+        // Navigation
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(section).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if (item.dataset.section === section) {
+                    item.classList.add('active', 'text-yellow-400');
+                    item.classList.remove('text-gray-300');
+                } else {
+                    item.classList.remove('active', 'text-yellow-400');
+                    item.classList.add('text-gray-300');
+                }
+            });
+
+            document.getElementById('mobile-menu').classList.add('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        // Stats
+        function updateStats() {
+            document.getElementById('stat-fighters').textContent = users.length;
+            document.getElementById('stat-fights').textContent = Math.floor(users.length * 2.5);
+            document.getElementById('stat-online').textContent = Math.floor(Math.random() * 15) + 5;
+        }
+
+        // Utility
+        function generateIP() {
+            return `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const colors = {
+                success: 'border-green-500 text-green-400',
+                error: 'border-red-500 text-red-400',
+                warning: 'border-yellow-500 text-yellow-400',
+                info: 'border-blue-500 text-blue-400'
+            };
+
+            toast.className = `toast glass-strong border-l-4 ${colors[type]} px-6 py-4 rounded-xl flex items-center gap-3 min-w-[300px]`;
+            toast.innerHTML = `
+                <i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : type === 'warning' ? 'alert-triangle' : 'info'}" class="w-5 h-5"></i>
+                <span class="text-white text-sm font-medium">${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Particles
+        function initParticles() {
+            const canvas = document.getElementById('particles-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            for (let i = 0; i < 80; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2 + 0.5,
+                    speedX: Math.random() * 0.5 - 0.25,
+                    speedY: Math.random() * 0.5 - 0.25,
+                    opacity: Math.random() * 0.5 + 0.1
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    if (p.x > canvas.width) p.x = 0;
+                    if (p.x < 0) p.x = canvas.width;
+                    if (p.y > canvas.height) p.y = 0;
+                    if (p.y < 0) p.y = canvas.height;
+                    
+                    ctx.fillStyle = `rgba(255, 215, 0, ${p.opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+
+        // Demo data
+        if (users.length === 0) {
+            users.push({
+                id: 1,
+                firstName: 'Admin',
+                lastName: 'LFC',
+                username: 'Administrator',
+                email: ADMIN_EMAIL,
+                password: 'admin123',
+                avatar: '🛡️',
+                banner: null,
+                nameStyle: 'glow',
+                nameColor: '#ff3333',
+                font: 'font-cinzel',
+                verified: true,
+                banned: false,
+                isAdmin: true,
+                ip: '192.168.1.1',
+                createdAt: new Date().toISOString(),
+                lastLogin: new Date().toISOString(),
+                wins: 999,
+                losses: 0,
+                points: 99999
+            });
+            localStorage.setItem('lfc_users', JSON.stringify(users));
+        }
+    </script>
+</body>
+</html>
